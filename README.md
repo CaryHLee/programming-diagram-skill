@@ -36,6 +36,7 @@
 
 ## 使用方式
 
+对AI说：安装https://github.com/CaryHLee/programming-diagram-skill/
 将本目录作为 Codex skill 放入本地 skills 目录后，即可在需要梳理程序架构或绘制调用关系、流程逻辑时触发使用。
 
 ## 许可

@@ -1,0 +1,3 @@
+interface:
+  display_name: "思维导图·时序图页面"
+  short_description: "用本地 mermaid 制作调用关系思维导图与 UML 时序图 HTML 页面"

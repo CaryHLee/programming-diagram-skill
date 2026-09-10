@@ -1,0 +1,124 @@
+<!doctype html>
+<!--
+  思维导图（flowchart）+ UML 时序图（sequenceDiagram）页面模板
+  ----------------------------------------------------------
+  设计来源：RWSEM 执行器调用关系与步骤顺序（2026-09-07 可视化产物）。
+  设计要点：单栏限宽居中、白底、无侧栏；层次靠字号 + h2 左侧青色竖条；
+           mermaid 图置于细边框圆角面板内，居中显示、宽图横向滚动。
+  用法：复制本文件，仅替换 <pre class="mermaid"> 中的图表定义即可；
+        若需多张图，按"h2 + div.panel"整段复制。
+  mermaid 引擎：同目录 mermaid.min.js（mermaid@10.9.1，官方校验入库），
+                需与本页面成对分发；若要求单文件离线，将下方
+                <script src="mermaid.min.js"> 替换为 <script>…库全文…</script>。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>思维导图 · 程序调用关系与步骤顺序（模板示例）</title>
+<style>
+  body{margin:0;background:#fff;color:#1f2937;font-family:"Segoe UI","Microsoft YaHei","PingFang SC",system-ui,sans-serif;font-size:14px;line-height:1.5}
+  .wrap{max-width:1500px;margin:0 auto;padding:22px 26px 40px}
+  h1{font-size:19px;margin:0 0 6px;font-weight:500}
+  h2{font-size:16px;margin:30px 0 4px;font-weight:500;border-left:5px solid #0e7490;padding-left:9px}
+  .desc{color:#5b6470;margin:0 0 8px}
+  .mermaid{display:flex;justify-content:center;overflow:auto;background:#fff}
+  .panel{border:1px solid #e2e8f0;border-radius:10px;padding:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- 示例一：调用关系思维导图（flowchart）—— 正文内容按需替换 -->
+  <h1>「执行器」全链路：程序调用关系 + 步骤顺序逻辑</h1>
+  <p class="desc">执行器 = Python执行器.py / R执行器.py，前接「执行引擎 → 工具执行器 → 启动.py 工具函数」，后接子进程与产出文件系统。</p>
+
+  <h2>一、执行器相关程序的调用关系</h2>
+  <div class="panel">
+  <pre class="mermaid">
+flowchart LR
+  A1["Agent核心.py<br/>Agent Loop"]
+  A2["执行引擎.py<br/>执行工具·超时·重试·验证"]
+  A3["重试.py<br/>指数退避+抖动"]
+  A4["工具注册表.py<br/>工具执行器·策略·结果约定"]
+  A5["配置中心.py<br/>工具超时秒热读"]
+  B1["启动.py<br/>装配·工具_run_python·工具_run_r"]
+  C1["Python执行器.py<br/>sys.executable 子进程"]
+  C2["R执行器.py<br/>Rscript 子进程·可视化抓取"]
+  D1["设置.json<br/>Python超时秒·R超时秒·工具超时秒"]
+  D2["文件存储.py<br/>路径解析"]
+  D3["数据/图表/{运行标识}<br/>png·figure.json·figure.db·PlotObj_*"]
+  D4["任务编排.py<br/>figure.db 读取/保存"]
+
+  A1 -->|创建并调用 执行工具| A2
+  A1 -->|定义列表/工具定义| A4
+  A1 -->|_当前工具超时秒| A5
+  A2 -->|执行/幂等/可重试/结果约定| A4
+  A2 -->|带重试/计算延迟| A3
+  A5 -->|实时读取| D1
+  B1 -->|实例化 Python执行器| C1
+  B1 -->|实例化 R执行器| C2
+  B1 -->|加载配置·解析Rscript| D1
+  A4 -->|执行器表绑定工具函数| B1
+  B1 -->|工具_run_python → 运行| C1
+  B1 -->|工具_run_r → 运行并抓取可视化| C2
+  C1 -->|cwd=产出目录 写产物| D3
+  C2 -->|figure.json/PlotObj 写产物| D3
+  B1 -->|_产出目录 解析路径| D2
+  D2 -->|磁盘读写| D3
+  D4 -->|import 写入figure库/读取figure库| C2
+  D4 -->|读写 figure.db| D3
+  </pre>
+  </div>
+
+  <!-- 示例二：步骤顺序时序图（sequenceDiagram）—— 正文内容按需替换 -->
+  <h2>二、执行器步骤顺序（UML 时序）</h2>
+  <div class="panel">
+  <pre class="mermaid">
+sequenceDiagram
+  autonumber
+  participant K as Agent核心.py
+  participant E as 执行引擎.py
+  participant T as 工具执行器.py
+  participant B as 启动.py
+  participant P as Python执行器.py
+  participant R as R执行器.py
+  participant X as 文件系统
+
+  K->>K: 模型返回 tool_calls(run_python/run_r)
+  K->>E: 执行工具(名称,参数,上下文)
+  E->>T: 校验注册/幂等/可重试策略
+  T->>B: 执行器表命中 工具_run_python/工具_run_r
+  B->>B: 检查已取消/空脚本 → _产出目录(数据/图表/{运行标识})
+  B->>X: 写脚本到 数据/任务工作区
+  alt run_python
+    B->>P: 运行(脚本路径,参数路径,cwd=产出目录)
+    P->>X: subprocess [sys.executable -X utf8] env={} timeout
+    X-->>P: stdout/stderr/returncode
+    P-->>B: {成功,输出,错误,返回码}
+  else run_r
+    B->>R: 运行并抓取可视化(脚本路径,参数,cwd=产出目录)
+    R->>R: 生成包装脚本(拦截png/dev.off,抓ggplot,plotly)
+    R->>X: subprocess Rscript cwd=产出目录 timeout
+    X-->>R: figure.json / PlotObj_*.png
+    R->>X: 写入figure.db(三表全量无损)
+    R-->>B: {成功,输出,错误,figure参数,plotObjs}
+  end
+  B->>X: _收集图片(产出目录)
+  B-->>T: JSON(输出,图片,可视化)
+  T-->>E: 文本结果
+  E->>E: 结果验证(非空/JSON约定)
+  E-->>K: 工具结果 → 回填 tool 消息
+  Note over E: 超时分支：守护线程+队列 → 执行超时；run_python/run_r 不可重试，直接上抛
+  Note over K,X: 超时值：Python执行器/R执行器=600s；执行引擎工具超时=300s(配置中心热读)
+  </pre>
+  </div>
+</div>
+
+<script src="mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad:false, theme:"base", securityLevel:"loose",
+    flowchart:{ htmlLabels:true, curve:"basis", nodeSpacing:24, rankSpacing:44 },
+    sequence:{ actorMargin:22, boxMargin:6, messageMargin:24, mirrorActors:false, useMaxWidth:true } });
+  mermaid.run();
+</script>
+</body>
+</html>

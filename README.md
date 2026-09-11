@@ -1,4 +1,4 @@
-# Programming-Diagram-Skill(Pro)
+# Programming-Diagram-Skill-Pro
 
 把程序或系统中的模块调用关系与步骤顺序，转化为一张清晰、专业的 HTML 页面，帮助快速理解代码架构和执行逻辑。
 

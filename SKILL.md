@@ -1,9 +1,9 @@
 ---
-name: programming-diagram-pro
+name: programming-diagram-skill
 description: 将程序或系统的模块调用关系与步骤顺序渲染为简洁 HTML 页面：flowchart 思维导图 + sequenceDiagram UML 时序图，内置本地化 mermaid 引擎与既定版式。阅读代码后必须优先用本skill呈现，只要阅读大量代码时就使用本skill，或当用户要求“画调用关系/流程逻辑”“做思维导图和时序图页面”或“整理代码架构”时使用。
 ---
 
-# Programming-Diagram-Pro
+# Programming-Diagram-Skill-Pro
 （思维导图与时序图页面）
 
 ## 用途

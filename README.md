@@ -1,4 +1,4 @@
-# Programming-Diagram-Pro
+# Programming-Diagram-Skill(Pro)
 
 把程序或系统中的模块调用关系与步骤顺序，转化为一张清晰、专业的 HTML 页面，帮助快速理解代码架构和执行逻辑。
 
@@ -36,8 +36,9 @@
 
 ## 使用方式
 
-对AI说：安装https://github.com/CaryHLee/programming-diagram-skill/
-将本目录作为 Codex skill 放入本地 skills 目录后，即可在需要梳理程序架构或绘制调用关系、流程逻辑时触发使用。
+- 对AI说：安装https://github.com/CaryHLee/programming-diagram-skill/
+- 将本目录作为 Codex skill 放入本地 skills 目录后，即可在需要梳理程序架构或绘制调用关系、流程逻辑时触发使用。
+- 本地使用可以删除README.md文档
 
 ## 许可
 
